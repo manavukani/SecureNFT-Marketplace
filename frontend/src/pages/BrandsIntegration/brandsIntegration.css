@@ -1,0 +1,12 @@
+.brands-integration{
+    width: fit-content;
+    background-color: var(--white);
+    padding: 24px 20px;
+    border-radius: 10px;
+    
+}
+
+.bi-logos{
+    width: 100%;
+    left:auto;
+}

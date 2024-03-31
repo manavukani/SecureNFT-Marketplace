@@ -44,7 +44,7 @@ const Header = () => {
                             <span>
                                 <i className="ri-fire-fill"></i>
                             </span>
-                            MLH Web3Apps
+                            SecureNFT-Marketplace
                         </h2>
                     </div>
 

@@ -70,7 +70,7 @@ const Footer = () => {
                                 <span>
                                     <i className="ri-fire-fill"></i>
                                 </span>
-                                MLH Web3Apps
+                                SecureNFT-Marketplace
                             </h2>
                             <p>
                                 Lorem, ipsum dolor sit amet consectetur adipisicing elit.

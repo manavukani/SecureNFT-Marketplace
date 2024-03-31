@@ -64,6 +64,18 @@ Contributions are what make the open-source community such an amazing place to l
 5. **Push to the branch** you created (`git push origin issue-XX`).
 6. **Open a Pull Request**.
 
+## Screenshots
+
+### Landing Page
+![brave_Sm34WzYFtc](https://github.com/manavukani/SecureNFT-Marketplace/assets/84531789/f0f28741-7d32-4c96-8576-051d36430e08)
+### Marketplace
+![brave_xaR2niEzOy](https://github.com/manavukani/SecureNFT-Marketplace/assets/84531789/27b965f4-5de0-4ba9-8d97-e25a62adefac)
+### Request for Purchase
+![brave_TKYU0x1Kfy](https://github.com/manavukani/SecureNFT-Marketplace/assets/84531789/a75879f4-8a37-445c-8d6f-b4ea6a5bb5ff)
+### Contact Us
+![brave_l3MROgqWiu](https://github.com/manavukani/SecureNFT-Marketplace/assets/84531789/741c8561-1b68-43f4-b899-55f5d6c6f979)
+
+
 ## Inspiration
 
 The inspiration behind SecureNFT Marketplace stemmed from the growing demand for a secure and transparent platform in the NFT space. As NFTs gained popularity, so did concerns about security and trustworthiness. We wanted to address these concerns by creating a marketplace that prioritizes the security and integrity of NFT transactions while offering a user-friendly experience.

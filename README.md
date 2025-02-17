@@ -1,21 +1,5 @@
 # SecureNFT-Marketplace
 
-  <ol>
-    <li><a href="#about-the-project">About The Project</a></li>
-    <li><a href="#getting-started">Getting Started</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#inspiration">Inspiration</a></li>
-    <li><a href="#what-it-does">What It Does</a></li>
-    <li><a href="#how-we-built-it">How We Built It</a></li>
-    <li><a href="#challenges-we-ran-into">Challenges We Ran Into</a></li>
-    <li><a href="#accomplishments-that-were-proud-of">Accomplishments That We're Proud Of</a></li>
-    <li><a href="#what-we-learned">What We Learned</a></li>
-    <li><a href="#whats-next-for-securenft-marketplace">What's Next for SecureNFT Marketplace</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ol>
-
-## About The Project
-
 SecureNFT Marketplace is a secure and transparent platform for trading, viewing, and requesting NFTs. It leverages blockchain technology to ensure immutable ownership records and transparent transactions, fostering trust and confidence among users.
 
 ### Built With

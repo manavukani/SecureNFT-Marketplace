@@ -1,224 +1,182 @@
-// SPDX-License-Identifier: MIT
+//SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/Base64.sol"; 
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract TPNFT is ERC721URIStorage {
-    address contractOwner; //Owner of the contract/NFT Project
-    using Strings for uint256; //importing all functions of Strings library in uint256
-    uint256 tokenCounter = 5;
-    uint256 requestCounter = 0;
-    string ownersData;
+contract NFTMarketplace is ERC721URIStorage {
 
-    struct NFT {
-        address nftOwner;
-        uint256 nftId;
-        string nftLink;
-        string nftDescription;
-    }
-    mapping(uint256 => NFT) public idToNft;
+    using Counters for Counters.Counter;
+    //_tokenIds variable has the most recent minted tokenId
+    Counters.Counter private _tokenIds;
+    //Keeps track of the number of items sold on the marketplace
+    Counters.Counter private _itemsSold;
+    //owner is the contract address that created the smart contract
+    address payable owner;
+    //The fee charged by the marketplace to be allowed to list an NFT
+    uint256 listPrice = 0.01 ether;
 
-    //token = nft
-
-    constructor() ERC721("Arkham NFT", "BAT") {
-        //Project name and symbol
-        contractOwner = msg.sender;
-
-        idToNft[0] = NFT({
-            nftId: 1,
-            nftDescription: "I am way up, I feel blessed",
-            nftLink: "https://bafybeihhpwx2aw6gr3qkepyqj5k3iw5tp4cqejleuhmjwliwc7wsr2ff3i.ipfs.w3s.link/LIVE.png",
-            nftOwner: address(0)
-        });
-
-        idToNft[1] = NFT({
-            nftId: 2,
-            nftDescription: "An image of my friend Prakhar",
-            nftLink: "https://bafybeidlgoiy5cktkuceyxgswyg6u2coqegsbhuvaz7t2adlmbd6g7qvx4.ipfs.w3s.link/Prakhar.png",
-            nftOwner: address(0)
-        });
-        idToNft[2] = NFT({
-            nftId: 3,
-            nftDescription: "An image of my friend Amena",
-            nftLink: "https://bafybeiftt5abe6octnlgnc4cgdum7vhuitry6t2euw5xemtzu6eubekwau.ipfs.w3s.link/Amena.png",
-            nftOwner: address(0)
-        });
-        idToNft[3] = NFT({
-            nftId: 4,
-            nftDescription: "An image of my friend Mustafa",
-            nftLink: "https://bafybeifczkwptefkuz4aaat4jcmz3757gjngswjimvjie2ldldlo32f7tq.ipfs.w3s.link/Mustafa.png",
-            nftOwner: address(0)
-        });
-        idToNft[4] = NFT({
-            nftId: 5,
-            nftDescription: "We are Team Rocket!",
-            nftLink: "https://bafybeiae6pun7y23ncgkym5q4rj3byq57y5wquzrwgpncrav3u5rdn7ldy.ipfs.w3s.link/Team%20Rocket.png",
-            nftOwner: address(0)
-        });
+    //The structure to store info about a listed token
+    struct ListedToken {
+        uint256 tokenId;
+        address payable owner;
+        address payable seller;
+        uint256 price;
+        bool currentlyListed;
     }
 
-    //events
-    event nftOwnerChange(
-        address indexed from,
-        address indexed to,
-        uint256 indexed nftId
-    ); // add as 4th arguement: uint256 _price
+    //the event emitted when a token is successfully listed
+    event TokenListedSuccess (
+        uint256 indexed tokenId,
+        address owner,
+        address seller,
+        uint256 price,
+        bool currentlyListed
+    );
 
-    //modifiers
-    modifier onlyOwner() {
-        require(msg.sender == contractOwner);
-        _;
-    }
-    modifier notOwner() {
-        require(msg.sender != contractOwner);
-        _;
-    }
+    //This mapping maps tokenId to token info and is helpful when retrieving details about a tokenId
+    mapping(uint256 => ListedToken) private idToListedToken;
 
-    struct Request {
-        address nftOwner;
-        uint256 nftId;
-        string nftDescription;
-        string nftLink;
-        bool permission;
+    constructor() ERC721("NFTMarketplace", "NFTM") {
+        owner = payable(msg.sender);
     }
 
-    mapping(uint256 => Request) public idToRequestNft;
-    mapping(uint256 => address[]) public nftOwners;
-
-    function getNftOwners(uint256 nftId)
-        public
-        view
-        returns (address[] memory)
-    {
-        nftId -= 1;
-        return nftOwners[nftId];
+    function updateListPrice(uint256 _listPrice) public payable {
+        require(owner == msg.sender, "Only owner can update listing price");
+        listPrice = _listPrice;
     }
 
-    function getTokenURI(uint256 nftId) public view returns (string memory) {
-        bytes memory dataURI = abi.encodePacked( //are we even using this
-            "{",
-            '"id": "',
-            (idToNft[nftId].nftId).toString(),
-            '",',
-            '"description": "',
-            idToNft[nftId].nftDescription,
-            '",',
-            '"image": "',
-            idToNft[nftId].nftLink,
-            '"'
-            "}"
+    function getListPrice() public view returns (uint256) {
+        return listPrice;
+    }
+
+    function getLatestIdToListedToken() public view returns (ListedToken memory) {
+        uint256 currentTokenId = _tokenIds.current();
+        return idToListedToken[currentTokenId];
+    }
+
+    function getListedTokenForId(uint256 tokenId) public view returns (ListedToken memory) {
+        return idToListedToken[tokenId];
+    }
+
+    function getCurrentToken() public view returns (uint256) {
+        return _tokenIds.current();
+    }
+
+    //The first time a token is created, it is listed here
+    function createToken(string memory tokenURI, uint256 price) public payable returns (uint) {
+        //Increment the tokenId counter, which is keeping track of the number of minted NFTs
+        _tokenIds.increment();
+        uint256 newTokenId = _tokenIds.current();
+
+        //Mint the NFT with tokenId newTokenId to the address who called createToken
+        _safeMint(msg.sender, newTokenId);
+
+        //Map the tokenId to the tokenURI (which is an IPFS URL with the NFT metadata)
+        _setTokenURI(newTokenId, tokenURI);
+
+        //Helper function to update Global variables and emit an event
+        createListedToken(newTokenId, price);
+
+        return newTokenId;
+    }
+
+    function createListedToken(uint256 tokenId, uint256 price) private {
+        //Make sure the sender sent enough ETH to pay for listing
+        require(msg.value == listPrice, "Hopefully sending the correct price");
+        //Just sanity check
+        require(price > 0, "Make sure the price isn't negative");
+
+        //Update the mapping of tokenId's to Token details, useful for retrieval functions
+        idToListedToken[tokenId] = ListedToken(
+            tokenId,
+            payable(address(this)),
+            payable(msg.sender),
+            price,
+            true
         );
 
-        return
-            string(
-                abi.encodePacked(
-                    "data:application/json;base64,",
-                    Base64.encode(dataURI)
-                )
-            );
+        _transfer(msg.sender, address(this), tokenId);
+        //Emit the event for successful transfer. The frontend parses this message and updates the end user
+        emit TokenListedSuccess(
+            tokenId,
+            address(this),
+            msg.sender,
+            price,
+            true
+        );
     }
-
-    function getContractOwner() public view returns (address) {
-        return contractOwner;
-    }
-
-    function storeOwners(
-        uint256 nftId,
-        address from,
-        address to
-    ) public {
-        address[] storage tempArray = nftOwners[nftId];
-        tempArray.push(from);
-        tempArray.push(to);
-        nftOwners[nftId] = tempArray;
-    }
-
-    function mint(uint256 nftId) public payable {
-        // require(msg.sender != idToNft[nftId].nftOwner, "You are already the Owner!"); //seems like ERC721 does not allow same token to get minted again which totally makes sense. If the minted owner wants to sell, then transfer() will be used.
-
-        //can add payment wala thing
-        // require(msg.value == 10 ether, "Not enough Ethers!");
-        // uint256 newItemId = tokenCounter.current();
-        nftId -= 1;
-        storeOwners(nftId, idToNft[nftId].nftOwner, msg.sender);
-        _safeMint(msg.sender, nftId);
-        _setTokenURI(nftId, getTokenURI(nftId));
-        idToNft[nftId].nftOwner = msg.sender;
-        emit nftOwnerChange(address(0), msg.sender, nftId); //add msg.value as 4th arguement
-
-        // tokenCounter.increment(); //Incrementing the pointer/index/counter of main nft list
-    }
-
-    function returnInitialObjects() public view returns (NFT[] memory) {
-        NFT[] memory tempArray = new NFT[](tokenCounter);
-        for (uint256 i = 0; i < tokenCounter; i++) {
-            tempArray[i] = idToNft[i];
+    
+    //This will return all the NFTs currently listed to be sold on the marketplace
+    function getAllNFTs() public view returns (ListedToken[] memory) {
+        uint nftCount = _tokenIds.current();
+        ListedToken[] memory tokens = new ListedToken[](nftCount);
+        uint currentIndex = 0;
+        uint currentId;
+        //at the moment currentlyListed is true for all, if it becomes false in the future we will 
+        //filter out currentlyListed == false over here
+        for(uint i=0;i<nftCount;i++)
+        {
+            currentId = i + 1;
+            ListedToken storage currentItem = idToListedToken[currentId];
+            tokens[currentIndex] = currentItem;
+            currentIndex += 1;
         }
-        return tempArray;
+        //the array 'tokens' has the list of all NFTs in the marketplace
+        return tokens;
     }
-
-    function buy(uint256 nftId) external {
-        //add payable later
-        // uint256 price = tokenIdToPrice[_tokenId];
-        // require(price > 0, 'This token is not for sale');
-        // require(msg.value == 5 ether, "Not enough Funds"); FIX THIS
-        nftId -= 1;
-        storeOwners(nftId, idToNft[nftId].nftOwner, msg.sender);
-        address seller = ownerOf(nftId); // = idToNft[nftId]
-        _transfer(seller, msg.sender, nftId);
-        idToNft[nftId].nftOwner = msg.sender;
-        // tokenIdToPrice[_tokenId] = 0; // not for sale anymore
-        // payable(seller).transfer(msg.value); // send the ETH to the seller
-        emit nftOwnerChange(seller, msg.sender, nftId); //add msg.value as 4th arguement
-    }
-
-    function requestPermission(
-        string memory nftDescription,
-        string memory nftLink
-    ) public {
-        Request memory newRequest;
-        newRequest.nftId = requestCounter + 1; //starts with 1, just like nftId
-        newRequest.nftOwner = msg.sender;
-        newRequest.nftDescription = nftDescription;
-        newRequest.nftLink = nftLink;
-
-        idToRequestNft[requestCounter] = newRequest;
-        requestCounter += 1;
-    }
-
-    function decidePermission(bool decision, uint256 requestedNftId)
-        public
-        onlyOwner
-    {
-        requestedNftId -= 1;
-        Request memory requestedNft = idToRequestNft[requestedNftId];
-        if (decision) {
-            requestedNft.permission = true;
-            idToRequestNft[requestedNftId] = requestedNft; //changing the permission and reassigning in the mapping
-
-            NFT memory newNft;
-            newNft.nftOwner = address(0);
-            newNft.nftDescription = requestedNft.nftDescription;
-            newNft.nftLink = requestedNft.nftLink;
-            newNft.nftId = tokenCounter + 1;
-            idToNft[tokenCounter] = newNft;
-            tokenCounter += 1;
-            requestCounter -= 1;
-        } else {
-            //what to do if decline?
-        }
-    }
-
-    function viewRequests() public view returns (Request[] memory) {
-        Request[] memory pendingRequests = new Request[](requestCounter);
-        for (uint256 i = 0; i < requestCounter; i++) {
-            if (!(idToRequestNft[i].permission)) {
-                pendingRequests[i] = idToRequestNft[i];
+    
+    //Returns all the NFTs that the current user is owner or seller in
+    function getMyNFTs() public view returns (ListedToken[] memory) {
+        uint totalItemCount = _tokenIds.current();
+        uint itemCount = 0;
+        uint currentIndex = 0;
+        uint currentId;
+        //Important to get a count of all the NFTs that belong to the user before we can make an array for them
+        for(uint i=0; i < totalItemCount; i++)
+        {
+            if(idToListedToken[i+1].owner == msg.sender || idToListedToken[i+1].seller == msg.sender){
+                itemCount += 1;
             }
         }
-        return pendingRequests;
+
+        //Once you have the count of relevant NFTs, create an array then store all the NFTs in it
+        ListedToken[] memory items = new ListedToken[](itemCount);
+        for(uint i=0; i < totalItemCount; i++) {
+            if(idToListedToken[i+1].owner == msg.sender || idToListedToken[i+1].seller == msg.sender) {
+                currentId = i+1;
+                ListedToken storage currentItem = idToListedToken[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
     }
+
+    function executeSale(uint256 tokenId) public payable {
+        uint price = idToListedToken[tokenId].price;
+        address seller = idToListedToken[tokenId].seller;
+        require(msg.value == price, "Please submit the asking price in order to complete the purchase");
+
+        //update the details of the token
+        idToListedToken[tokenId].currentlyListed = true;
+        idToListedToken[tokenId].seller = payable(msg.sender);
+        _itemsSold.increment();
+
+        //Actually transfer the token to the new owner
+        _transfer(address(this), msg.sender, tokenId);
+        //approve the marketplace to sell NFTs on your behalf
+        approve(address(this), tokenId);
+
+        //Transfer the listing fee to the marketplace creator
+        payable(owner).transfer(listPrice);
+        //Transfer the proceeds from the sale to the seller of the NFT
+        payable(seller).transfer(msg.value);
+    }
+
+    //We might add a resell token function in the future
+    //In that case, tokens won't be listed by default but users can send a request to actually list a token
+    //Currently NFTs are listed by default
 }

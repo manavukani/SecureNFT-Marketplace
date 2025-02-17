@@ -20,38 +20,22 @@ SecureNFT Marketplace is a secure and transparent platform for trading, viewing,
 
 ### Built With
 
+- ReactJS
 - Solidity
 - Remix IDE
-- Ganache
+- Hardhat
 - Metamask
-- React
 
 ## Getting Started
 
 To get a local copy up and running follow these simple steps:
 
-### Prerequisites
-
-```sh
-npm install npm@latest -g
 ```
-
-### Installation
-
-1. Clone the repo
-   ```sh
-   git clone https://github.com/manavukani/SecureNFT-Marketplace.git
-   ```
-2. Install NPM packages
-   ```sh
-   npm install
-   ```
-3. Deploy the Smart Contract on a testnet.
-4. Enter the smart contract address and the ABI in `config.js`
-   ```js
-   const contractAddress = "ENTER YOUR CONTRACT ADDRESS";
-   const ABI = "ENTER YOUR ABI";
-   ```
+git clone https://github.com/manavukani/SecureNFT-Marketplace.git
+cd SecureNFT-Marketplace
+npm install
+npm start
+```
 
 ## Contributing
 
@@ -64,48 +48,12 @@ Contributions are what make the open-source community such an amazing place to l
 5. **Push to the branch** you created (`git push origin issue-XX`).
 6. **Open a Pull Request**.
 
-## Screenshots
-
-### Landing Page
-![brave_Sm34WzYFtc](https://github.com/manavukani/SecureNFT-Marketplace/assets/84531789/f0f28741-7d32-4c96-8576-051d36430e08)
-### Marketplace
-![brave_xaR2niEzOy](https://github.com/manavukani/SecureNFT-Marketplace/assets/84531789/27b965f4-5de0-4ba9-8d97-e25a62adefac)
-### Request for Purchase
-![brave_TKYU0x1Kfy](https://github.com/manavukani/SecureNFT-Marketplace/assets/84531789/a75879f4-8a37-445c-8d6f-b4ea6a5bb5ff)
-### Contact Us
-![brave_l3MROgqWiu](https://github.com/manavukani/SecureNFT-Marketplace/assets/84531789/741c8561-1b68-43f4-b899-55f5d6c6f979)
-
-
 ## Inspiration
 
 The inspiration behind SecureNFT Marketplace stemmed from the growing demand for a secure and transparent platform in the NFT space. As NFTs gained popularity, so did concerns about security and trustworthiness. We wanted to address these concerns by creating a marketplace that prioritizes the security and integrity of NFT transactions while offering a user-friendly experience.
 
-## What It Does
-
-SecureNFT Marketplace is a platform where users can securely trade, view, and request NFTs. It allows users to explore a wide range of NFTs, view ownership history, and express interest in purchasing specific NFTs by submitting purchase requests.
-
-## How We Built It
-
-We built SecureNFT Marketplace using a combination of blockchain technology and web development tools. The smart contracts were written in Solidity and deployed using Remix IDE and Ganache for local testing network. Metamask was integrated to enable interaction with the test net, while the frontend interface was developed using React for its flexibility.
-
-## Challenges We Ran Into
-
-This being our first hackathon, one of the main challenges we encountered was completing the project under the time limit given to us. Apart from that, ensuring the security and reliability of the smart contracts was a very meticulous task. We had to carefully write the code to prevent potential vulnerabilities and ensure the integrity of NFT transactions since we were learning in the process of doing it. Additionally, integrating Metamask and ensuring seamless interaction with the blockchain posed technical challenges that required careful debugging and testing.
-
-## Accomplishments That We're Proud Of
-
-We're proud to have created a secure and funky gen-z vibes platform that addresses the security concerns in the NFT space. Our platform provides users with a transparent and trustworthy environment to trade NFTs, promoting confidence and reliability in NFT transactions. Additionally, we're proud of our team's collaboration and dedication in overcoming technical challenges and delivering a product within time constraints.
-
-## What We Learned
-
-Through building SecureNFT Marketplace, we gained valuable insights into blockchain development, smart contract security, and web development. We learned the importance of thorough testing and review processes in ensuring the security and reliability of smart contracts. Additionally, we learned how to effectively integrate blockchain technology with frontend interfaces to create a seamless user experience.
-
 ## What's Next for SecureNFT Marketplace
 
-In the future, we plan to further enhance SecureNFT Marketplace by implementing additional features such as advanced search and filtering options, enhanced user profiles, and integration with external NFT marketplaces. We also aim to expand our platform to support multiple blockchain networks, offering users more flexibility and accessibility in trading NFTs. Additionally, we will continue to prioritize security and user experience in all our development efforts, ensuring that SecureNFT remains a trusted platform for NFT transactions.
-
-## Contact Me
-
-Manav Ukani - [LinkedIn](https://www.linkedin.com/in/manavukani/)
-
-Harsh Baldaniya - [LinkedIn](https://www.linkedin.com/in/hb134)
+- Add approval for NFTs once uploaded to appear on marketplace (update smart contract)
+- Integrate APIs to get NFTs from different marketplaces, like Alchemy API
+- Add cross comptability, if my wallet has NFT on say, OpenSea marketplace, it appears here as well
